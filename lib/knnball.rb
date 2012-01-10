@@ -8,8 +8,6 @@
 # This module is used as namespace for every elements of
 # the knnball library.
 
-require 'msgpack'
-
 module KnnBall
   
   autoload :Ball, 'knnball/ball'
