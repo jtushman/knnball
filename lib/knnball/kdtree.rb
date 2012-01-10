@@ -151,9 +151,15 @@ module KnnBall
     end
 
     # Retrieve an internal string representation of the index
-    # that can then be persisted.
-    def marshall
-      Marshal.dump(self)
+    # that can then be persisted.  If an io is passed it will write to it
+    # otherwise will return the string
+    def marshall(io=nil)
+      if io.nil?
+        Marshal.dump(self)
+      else
+        Marshal.dump(self,io)
+      end
+
     end
 
     # Retrieve a BallTree instance from a previously marshalled instance.

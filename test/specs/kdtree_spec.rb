@@ -90,7 +90,7 @@ module KnnBall
             )
           )
         )
-        @tree =   KDTree.new(@root)
+        @tree = KDTree.new(@root)
       end
       
       points.each do |p|

@@ -73,6 +73,13 @@ describe KnnBall do
       @marshalled_content.must_be :kind_of?, String
     end
 
+    it "can also marshal to an IO" do
+      require 'tempfile'
+      temp_file = Tempfile.new(['dump','txt'])
+      @tree.marshall(temp_file)
+      assert temp_file.size > 0
+    end
+
     it "must retrieve a a BallTree instance" do
       @marshalled_content = @tree.marshall
       KnnBall::KDTree.unmarshall(@marshalled_content).must_be :kind_of?, KnnBall::KDTree
