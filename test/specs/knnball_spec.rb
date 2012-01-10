@@ -54,16 +54,38 @@ describe KnnBall do
   end
   
   describe "when asked to serialize the index" do
+
+    before :each do
+      @tree = KnnBall.build([
+          {:id => 1, :point => [1]},
+          {:id => 2, :point => [2]},
+          {:id => 3, :point => [3]},
+          {:id => 4, :point => [5]},
+          {:id => 5, :point => [8]},
+          {:id => 6, :point => [13]},
+          {:id => 7, :point => [21]},
+          {:id => 8, :point => [34]}
+        ])
+    end
+
     it "must retrieve a string" do
-      KnnBall.marshall(@ball_tree).must_be :kind_of?, String
+      @marshalled_content = @tree.marshall
+      @marshalled_content.must_be :kind_of?, String
     end
-  end
-  
-  describe "when asked to load an index" do
+
     it "must retrieve a a BallTree instance" do
-      KnnBall.unmarshall("").must_be :kind_of?, KnnBall::KDTree
+      @marshalled_content = @tree.marshall
+      KnnBall::KDTree.unmarshall(@marshalled_content).must_be :kind_of?, KnnBall::KDTree
     end
+
+    it "must still work after marshaling" do
+      @marshalled_content = @tree.marshall
+      @unmarshalled_tree = KnnBall::KDTree.unmarshall(@marshalled_content)
+      @unmarshalled_tree.root.value.must_equal({:id => 4, :point => [5]})
+    end
+
   end
+
   
   describe "when asked to find the neareast location" do
     before :each do
@@ -75,11 +97,12 @@ describe KnnBall do
         h
       end
     end
-    
-    it "retrieve the nearest location" do
-      result = KnnBall.find_knn(@ball_tree, [1, 1, 1, 1])
-      result.must_be :kind_of?, Array
-    end
+
+    #Not Implemented Yet
+    #it "retrieve the nearest location" do
+    #  result = KnnBall.find_knn(@ball_tree, [1, 1, 1, 1])
+    #  result.must_be :kind_of?, Array
+    #end
     
     it "retrieve the same results as a brute force approach" do
       tree = KnnBall.build(@data)

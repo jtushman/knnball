@@ -55,11 +55,24 @@ on. In practice, this class does not behave like a ball, but by metaphore, it ma
 *KDTree#nearest* retrieve the nearest *value* of the given *point* by default or 
 the k nearest value if ':limit' optional argument is greater than 1.
 
+Marshaling
+----------
+
+There are some high performance cases, when you will not what to incur the cost of
+building the tree each execution.  For these cases you can persist the state of the tree
+and then reload it.
+
+    index = KnnBall.build(data)
+    @marshaled_content = index.marshal
+
+    #later
+    index = KnnBall::KDTree.unmarshall(@marshaled_content)
+
 Roadmap
 -------
 
 * Retrieve the k-nearest neighbors of a point instead of just one.
-* Export and load using JSON
+* Export and load using JSON  (Currently supports simple Marshaling)
 * Support the addition of new values
 * Rebuild the tree
 

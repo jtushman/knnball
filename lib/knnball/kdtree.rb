@@ -6,13 +6,12 @@
 # See LICENSE or http://www.opensource.org/licenses/mit-license.php.
 
 
-
 module KnnBall
-  
+
   # KD-Tree implementation
   class KDTree
     attr_accessor :root
-    
+
     def initialize(root = nil)
       @root = root
     end
@@ -50,51 +49,51 @@ module KnnBall
     def nearest(coord, options = {})
       return nil if root.nil?
       return nil if coord.nil?
-      
+
       results = (options[:results] ? options[:results] : ResultSet.new({limit: options[:limit] || 1}))
       root_ball = options[:root] || root
-      
+
       # keep the stack while finding the leaf best match.
       parents = []
-      
+
       best_balls = []
       in_target = []
-      
+
       # Move down to best match
       current_best = nil
       current = root_ball
       while current_best.nil?
         dim = current.dimension-1
-        if(current.complete?)
+        if (current.complete?)
           next_ball = (coord[dim] <= current.center[dim] ? current.left : current.right)
-        elsif(current.leaf?)
+        elsif (current.leaf?)
           next_ball = nil
         else
           next_ball = (current.left.nil? ? current.right : current.left)
         end
-        if ( next_ball.nil? )
+        if (next_ball.nil?)
           current_best = current
         else
           parents.push current
           current = next_ball
         end
       end
-      
+
       # Move up to check split
       parents.reverse!
       results.add(current_best.quick_distance(coord), current_best.value)
       parents.each do |current_node|
         dist = current_node.quick_distance(coord)
-        if results.eligible?( dist )
+        if results.eligible?(dist)
           results.add(dist, current_node.value)
         end
-        
+
         dim = current_node.dimension-1
         if current_node.complete?
           # retrieve the splitting node.
           split_node = (coord[dim] <= current_node.center[dim] ? current_node.right : current_node.left)
           best_dist = results.barrier_value
-          if( (coord[dim] - current_node.center[dim]).abs < best_dist)
+          if ((coord[dim] - current_node.center[dim]).abs < best_dist)
             # potential match, need to investigate subtree
             nearest(coord, root: split_node, results: results)
           end
@@ -102,22 +101,22 @@ module KnnBall
       end
       return results.limit == 1 ? results.items.first : results.items
     end
-    
+
     # Retrieve the parent to which this coord should belongs to
     def parent_ball(coord)
       current = root
       d_idx = current.dimension-1
       result = nil
-      while(result.nil?)
-        if(coord[d_idx] <= current.center[d_idx])
+      while (result.nil?)
+        if (coord[d_idx] <= current.center[d_idx])
           if current.left.nil?
-            result = current 
+            result = current
           else
             current = current.left
           end
         else
           if current.right.nil?
-            result = current 
+            result = current
           else
             current = current.right
           end
@@ -126,42 +125,54 @@ module KnnBall
       end
       return result
     end
-    
+
     def empty?
       root.nil?
     end
-    
+
     def to_a
       return root.to_a
     end
-    
+
     def each(&proc)
       raise "tree is nil" if @root.nil?
       each_ball(@root, &proc)
     end
-    
+
     def map(&proc)
       res = []
-      self.each {|b| res << yield(b) }
+      self.each { |b| res << yield(b) }
       return res
     end
-    
+
     # naive implementation
     def count
       root.count
     end
-    
+
+    # Retrieve an internal string representation of the index
+    # that can then be persisted.
+    def marshall
+      Marshal.dump(self)
+    end
+
+    # Retrieve a BallTree instance from a previously marshalled instance.
+    def self.unmarshall(marsheled_content)
+      raise 'NothingToLoad' if marsheled_content.nil? || marsheled_content.length == 0
+      Marshal.load(marsheled_content)
+    end
+
     private
-    
+
     def each_ball(b, &proc)
       return if b.nil?
-      
+
       yield(b)
       each_ball(b.left, &proc) unless (b.left.nil?)
       each_ball(b.right, &proc) unless (b.right.nil?)
       return
     end
-  end 
+  end
 end
 
 

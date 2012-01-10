@@ -5,10 +5,11 @@
 # knnball is freely distributable under the terms of an MIT license.
 # See LICENSE or http://www.opensource.org/licenses/mit-license.php.
 
-
-
 # This module is used as namespace for every elements of
 # the knnball library.
+
+require 'msgpack'
+
 module KnnBall
   
   autoload :Ball, 'knnball/ball'
@@ -61,20 +62,10 @@ module KnnBall
     ball.right = generate(data[(median_idx+1)..-1], max_dimension, actual_dimension) if median_idx < (data.count)
     return ball
   end
-  
-  # Retrieve an internal string representation of the index
-  # that can then be persisted.
-  def self.marshall(ball_tree)
-    return ""
-  end
-  
-  # Retrieve a BallTree instance from a previously marshalled instance.
-  def self.unmarshall(marshalled_content)
-    return KDTree.new
-  end
-  
+
   # Retrieve the k nearest neighbor of the given position.
   def self.find_knn(ball_tree, position, k = 1, options = Hash.new)
+    raise NotImplementedError
     return []
   end
 end
